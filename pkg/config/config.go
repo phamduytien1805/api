@@ -5,6 +5,7 @@ import (
 )
 
 type Config struct {
+	Env string     `mapstructure:"env"`
 	Web *WebConfig `mapstructure:"web"`
 }
 
@@ -18,6 +19,8 @@ type WebConfig struct {
 
 func setDefault() {
 	viper.SetDefault("web.http.server.port", "5000")
+	viper.SetDefault("env", "development")
+
 }
 
 func NewConfig() (*Config, error) {

@@ -17,7 +17,11 @@ var apiCmd = &cobra.Command{
 			slog.Error(err.Error())
 			os.Exit(1)
 		}
-		app.serve()
+		err = app.serve()
+		if err != nil {
+			slog.Error(err.Error())
+			os.Exit(1)
+		}
 
 	},
 }
