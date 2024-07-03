@@ -12,12 +12,14 @@ import (
 	"time"
 
 	"github.com/phamduytien1805/pkg/config"
+	v "github.com/phamduytien1805/pkg/validator"
 )
 
 type application struct {
-	srv    *http.Server
-	config *config.Config
-	logger *slog.Logger
+	srv       *http.Server
+	config    *config.Config
+	logger    *slog.Logger
+	validator *v.Validate
 }
 
 func initializeApplication() (*application, error) {
@@ -26,9 +28,11 @@ func initializeApplication() (*application, error) {
 		return nil, err
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	validator := v.New()
 	app := &application{
-		config: configConfig,
-		logger: logger,
+		config:    configConfig,
+		logger:    logger,
+		validator: validator,
 	}
 	return app, nil
 }
