@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -36,8 +37,8 @@ func (app *application) serve() error {
 	// Start the server
 
 	app.srv = &http.Server{
-		Addr: app.config.Web.Http.Server.Port,
-		// Handler:      app.routes(),
+		Addr:         fmt.Sprintf(":%d", app.config.Web.Http.Server.Port),
+		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -81,7 +82,5 @@ func (app *application) gracefulStop(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
-	app.logger.Info("completing background tasks", "addr", app.srv.Addr)
 	return nil
 }

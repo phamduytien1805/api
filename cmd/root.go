@@ -13,7 +13,7 @@ var cfgFile string
 
 var RootCmd = &cobra.Command{
 	Use:   "server",
-	Short: "Random chat root executable",
+	Short: "root executable",
 }
 
 func Execute() {

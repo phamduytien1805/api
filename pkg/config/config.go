@@ -12,13 +12,13 @@ type Config struct {
 type WebConfig struct {
 	Http struct {
 		Server struct {
-			Port string
+			Port int
 		}
 	}
 }
 
 func setDefault() {
-	viper.SetDefault("web.http.server.port", "5000")
+	viper.SetDefault("web.http.server.port", 5000)
 	viper.SetDefault("env", "development")
 
 }
