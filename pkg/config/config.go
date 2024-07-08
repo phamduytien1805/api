@@ -18,7 +18,7 @@ type WebConfig struct {
 }
 
 func setDefault() {
-	viper.SetDefault("web.http.server.port", 5000)
+	viper.SetDefault("web.http.server.port", 5001)
 	viper.SetDefault("env", "development")
 
 }
