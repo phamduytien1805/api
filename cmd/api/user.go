@@ -1,7 +1,22 @@
 package api
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/go-chi/render"
+)
 
 func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
+	createUserRequest := &CreateUserRequest{}
+	if err := render.DecodeJSON(r.Body, createUserRequest); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
 
+	if err := app.validator.Struct(createUserRequest); err != nil {
+		app.failedValidationResponse(w, r, err)
+		return
+	}
+
+	app.Ok(w, r, &CreateUserResponse{})
 }

@@ -9,5 +9,4 @@ type User struct {
 	Username      string
 	Email         string
 	EmailVerified bool
-	Password      string
 }

@@ -13,11 +13,14 @@ func (app *application) routes() http.Handler {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(middleware.Heartbeat("/ping"))
 
 	r.NotFound(app.notFoundResponse)
 	r.MethodNotAllowed(app.methodNotAllowedResponse)
 
-	r.Use(middleware.Heartbeat("/ping"))
+	r.Route("/user", func(r chi.Router) {
+		r.Post("/register", app.registerUser)
+	})
 
 	return r
 }
