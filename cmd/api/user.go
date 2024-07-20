@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
+	"github.com/phamduytien1805/internal/user"
 )
 
 func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
-	createUserRequest := &CreateUserRequest{}
+	createUserRequest := &user.CreateUserForm{}
 	if err := render.DecodeJSON(r.Body, createUserRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -18,5 +19,5 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.Ok(w, r, &CreateUserResponse{})
+	// app.Ok(w, r, &CreateUserResponse{})
 }
