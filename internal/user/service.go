@@ -3,8 +3,11 @@ package user
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	data_access "github.com/phamduytien1805/internal/data-access"
+	"github.com/phamduytien1805/pkg/common"
 	"github.com/phamduytien1805/pkg/hash_generator"
 	"github.com/phamduytien1805/pkg/id_generator"
 )
@@ -45,5 +48,18 @@ func (svc *UserServiceImpl) CreateUserWithCredential(ctx context.Context, user *
 		},
 	}
 	txResult, err := svc.store.CreateUserWithCredentialTx(ctx, arg)
-	return mapToUser(txResult.User), err
+
+	if err != nil {
+		var pgErr *pgconn.PgError
+
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == common.UNIQUE_CONSTRAINT_VIOLATION {
+				return nil, ErrorUserResourceConflict
+			}
+
+		}
+		return nil, err
+	}
+
+	return mapToUser(txResult.User), nil
 }

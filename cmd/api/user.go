@@ -1,10 +1,12 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/go-chi/render"
 	"github.com/phamduytien1805/internal/user"
+	user_pkg "github.com/phamduytien1805/internal/user"
 )
 
 func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +23,10 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.userSvc.CreateUserWithCredential(r.Context(), createUserRequest)
 	if err != nil {
+		if errors.As(err, &user_pkg.ErrorUserResourceConflict) {
+			app.editConflictResponse(w, r, err.Error())
+			return
+		}
 		app.serverErrorResponse(w, r, err)
 		return
 	}
