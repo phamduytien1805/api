@@ -69,10 +69,13 @@ func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.
 	app.errorResponse(w, r, http.StatusUnprocessableEntity, message, app.validator.ValidatorErrors(err))
 }
 
-func (app *application) editConflictResponse(w http.ResponseWriter, r *http.Request, msg string) {
-	defaultMsg := "unable to update the record due to an edit conflict, please try again"
-	if msg == "" {
-		msg = defaultMsg
+func (app *application) editConflictResponse(w http.ResponseWriter, r *http.Request, err error) {
+	message := "unable to update the record due to an edit conflict, please try again"
+
+	app.logError(r, err)
+
+	if err != nil {
+		message = err.Error()
 	}
-	app.errorResponseDefault(w, r, http.StatusConflict, msg)
+	app.errorResponseDefault(w, r, http.StatusConflict, message)
 }

@@ -24,7 +24,7 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 	user, err := app.userSvc.CreateUserWithCredential(r.Context(), createUserRequest)
 	if err != nil {
 		if errors.As(err, &user_pkg.ErrorUserResourceConflict) {
-			app.editConflictResponse(w, r, err.Error())
+			app.editConflictResponse(w, r, err)
 			return
 		}
 		app.serverErrorResponse(w, r, err)
