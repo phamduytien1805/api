@@ -9,7 +9,7 @@ import (
 // Store defines all functions to execute db queries and transactions
 type Store interface {
 	Querier
-	CreateUserTx(ctx context.Context, arg CreateUserTxParams) (*CreateUserTxResult, error)
+	CreateUserWithCredentialTx(ctx context.Context, arg CreateUserWithCredentialTxParams) (CreateUserWithCredentialTxResult, error)
 }
 
 // SQLStore provides all functions to execute SQL queries and transactions

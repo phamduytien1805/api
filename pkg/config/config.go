@@ -5,8 +5,10 @@ import (
 )
 
 type Config struct {
-	Env string     `mapstructure:"env"`
-	Web *WebConfig `mapstructure:"web"`
+	Env  string      `mapstructure:"env"`
+	Web  *WebConfig  `mapstructure:"web"`
+	DB   *DBConfig   `mapstructure:"db"`
+	Hash *HashConfig `mapstructure:"hash"`
 }
 
 type WebConfig struct {
@@ -16,10 +18,32 @@ type WebConfig struct {
 		}
 	}
 }
+type DBConfig struct {
+	Source string
+}
+
+type HashConfig struct {
+	Time uint32
+	// cpu memory to be used.
+	Memory uint32
+	// threads for parallelism aspect
+	// of the algorithm.
+	Threads uint8
+	// keyLen of the generate hash key.
+	KeyLen uint32
+	// saltLen the length of the salt used.
+	SaltLen uint32
+}
 
 func setDefault() {
 	viper.SetDefault("web.http.server.port", 5001)
 	viper.SetDefault("env", "development")
+	viper.SetDefault("db.source", "postgresql://root:secret@localhost:5432/coreapi?sslmode=disable")
+	viper.SetDefault("hash.time", 1)
+	viper.SetDefault("hash.memory", 64*1024)
+	viper.SetDefault("hash.threads", 32)
+	viper.SetDefault("hash.keyLen", 256)
+	viper.SetDefault("hash.saltLen", 10)
 
 }
 

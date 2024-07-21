@@ -2,21 +2,32 @@ package data_access
 
 import "context"
 
-type CreateUserTxParams struct {
+type CreateUserWithCredentialTxParams struct {
 	CreateUserParams
-	AfterCreate func(user User) error
+	HashedCredential string
+	Salt             string
+	AfterCreate      func(User) error
 }
 
-type CreateUserTxResult struct {
+type CreateUserWithCredentialTxResult struct {
 	User User
 }
 
-func (store *SQLStore) CreateUserTx(ctx context.Context, arg CreateUserTxParams) (*CreateUserTxResult, error) {
-	var result *CreateUserTxResult
+func (store *SQLStore) CreateUserWithCredentialTx(ctx context.Context, arg CreateUserWithCredentialTxParams) (CreateUserWithCredentialTxResult, error) {
+	var result CreateUserWithCredentialTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 		result.User, err = q.CreateUser(ctx, arg.CreateUserParams)
+		if err != nil {
+			return err
+		}
+
+		_, err = q.CreateUserCredential(ctx, CreateUserCredentialParams{
+			UserID:     result.User.ID,
+			Credential: arg.HashedCredential,
+			Salt:       arg.Salt,
+		})
 		if err != nil {
 			return err
 		}

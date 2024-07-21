@@ -12,7 +12,6 @@ CREATE TABLE "user_credentials" (
   "user_id" uuid NOT NULL,
   "credential" varchar NOT NULL,
   "salt" varchar NOT NULL,
-  UNIQUE(user_id)
 );
 
 CREATE TABLE "user_social_tokens" (

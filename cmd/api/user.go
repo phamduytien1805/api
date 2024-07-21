@@ -19,5 +19,11 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// app.Ok(w, r, &CreateUserResponse{})
+	user, err := app.userSvc.CreateUserWithCredential(r.Context(), createUserRequest)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.Ok(w, r, http.StatusCreated, user)
 }

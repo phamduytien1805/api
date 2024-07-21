@@ -11,7 +11,11 @@ import (
 	"syscall"
 	"time"
 
+	data_access "github.com/phamduytien1805/internal/data-access"
+	"github.com/phamduytien1805/internal/user"
 	"github.com/phamduytien1805/pkg/config"
+	"github.com/phamduytien1805/pkg/db"
+	"github.com/phamduytien1805/pkg/hash_generator"
 	v "github.com/phamduytien1805/pkg/validator"
 )
 
@@ -20,6 +24,7 @@ type application struct {
 	config    *config.Config
 	logger    *slog.Logger
 	validator *v.Validate
+	userSvc   user.UserService
 }
 
 func initializeApplication() (*application, error) {
@@ -29,10 +34,21 @@ func initializeApplication() (*application, error) {
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	validator := v.New()
+
+	db, err := db.NewPostgresql(configConfig)
+
+	if err != nil {
+		return nil, err
+	}
+	store := data_access.NewStore(db)
+	hashGen := hash_generator.NewArgon2idHash(configConfig)
+
+	userSvc := user.NewUserServiceImpl(store, hashGen)
 	app := &application{
 		config:    configConfig,
 		logger:    logger,
 		validator: validator,
+		userSvc:   userSvc,
 	}
 	return app, nil
 }

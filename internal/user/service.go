@@ -14,7 +14,7 @@ type UserServiceImpl struct {
 	hashGen *hash_generator.Argon2idHash
 }
 
-func NewUserServiceImpl(store data_access.Store, hashGen *hash_generator.Argon2idHash) *UserServiceImpl {
+func NewUserServiceImpl(store data_access.Store, hashGen *hash_generator.Argon2idHash) UserService {
 	return &UserServiceImpl{
 		store:   store,
 		hashGen: hashGen,
@@ -26,7 +26,10 @@ func (svc *UserServiceImpl) CreateUserWithCredential(ctx context.Context, user *
 	if err != nil {
 		return nil, err
 	}
-	arg := data_access.CreateUserTxParams{
+
+	hashSaltCredential, err := svc.hashGen.GenerateHash([]byte(user.Credential), nil)
+
+	arg := data_access.CreateUserWithCredentialTxParams{
 		CreateUserParams: data_access.CreateUserParams{
 			ID:            ID,
 			Username:      user.Username,
@@ -34,19 +37,13 @@ func (svc *UserServiceImpl) CreateUserWithCredential(ctx context.Context, user *
 			EmailVerified: false,
 			State:         1,
 		},
+		HashedCredential: hex.EncodeToString(hashSaltCredential.Hash),
+		Salt:             hex.EncodeToString(hashSaltCredential.Salt),
 		AfterCreate: func(createdUser data_access.User) error {
-			hashSalt, err := svc.hashGen.GenerateHash([]byte(user.Credential), nil)
-			if err != nil {
-				return err
-			}
-			_, err = svc.store.CreateUserCredential(ctx, data_access.CreateUserCredentialParams{
-				UserID:     createdUser.ID,
-				Credential: hex.EncodeToString(hashSalt.Hash),
-				Salt:       hex.EncodeToString(hashSalt.Salt),
-			})
-			return err
+			//TODO: add logic to send email verification
+			return nil
 		},
 	}
-	txResult, err := svc.store.CreateUserTx(ctx, arg)
+	txResult, err := svc.store.CreateUserWithCredentialTx(ctx, arg)
 	return mapToUser(txResult.User), err
 }

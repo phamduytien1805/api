@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 
+	"github.com/phamduytien1805/pkg/config"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -30,13 +31,13 @@ type Argon2idHash struct {
 	saltLen uint32
 }
 
-func NewArgon2idHash(time, saltLen uint32, memory uint32, threads uint8, keyLen uint32) *Argon2idHash {
+func NewArgon2idHash(config *config.Config) *Argon2idHash {
 	return &Argon2idHash{
-		time:    time,
-		saltLen: saltLen,
-		memory:  memory,
-		threads: threads,
-		keyLen:  keyLen,
+		time:    config.Hash.Time,
+		saltLen: config.Hash.SaltLen,
+		memory:  config.Hash.Memory,
+		threads: config.Hash.Threads,
+		keyLen:  config.Hash.KeyLen,
 	}
 }
 
