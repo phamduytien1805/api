@@ -63,3 +63,21 @@ func (svc *UserServiceImpl) CreateUserWithCredential(ctx context.Context, user *
 
 	return mapToUser(txResult.User), nil
 }
+
+func (svc *UserServiceImpl) AuthenticateUserBasic(ctx context.Context, user *BasicAuthForm) (*User, error) {
+	// userData, err := svc.store.GetUserByEmail(ctx, user.Email)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// hashSaltCredential := hash_generator.HashSalt{
+	// 	Hash: []byte(userData.HashedCredential),
+	// 	Salt: []byte(userData.Salt),
+	// }
+
+	// if !svc.hashGen.CompareHash([]byte(user.Credential), hashSaltCredential) {
+	// 	return nil, ErrorUserInvalidCredential
+	// }
+
+	return nil, nil
+}

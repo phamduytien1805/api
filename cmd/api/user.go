@@ -33,3 +33,18 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 
 	app.Ok(w, r, http.StatusCreated, user)
 }
+
+func (app *application) authenticateUserBasic(w http.ResponseWriter, r *http.Request) {
+	basicAuthForm := &user.BasicAuthForm{}
+	if err := render.DecodeJSON(r.Body, basicAuthForm); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := app.validator.Struct(basicAuthForm); err != nil {
+		app.failedValidationResponse(w, r, err)
+		return
+	}
+	app.Ok(w, r, http.StatusCreated, nil)
+
+}

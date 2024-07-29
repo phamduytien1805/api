@@ -20,6 +20,8 @@ func (app *application) routes() http.Handler {
 
 	r.Route("/user", func(r chi.Router) {
 		r.Post("/register", app.registerUser)
+		r.Post("/auth", app.authenticateUserBasic)
+
 	})
 
 	return r
