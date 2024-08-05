@@ -28,3 +28,21 @@ INSERT INTO user_social_tokens (
 ) VALUES (
   $1, $2, $3, $4, $5
 ) RETURNING *;
+
+-- name: GetUserById :one
+Select * from users where id = $1;
+
+-- name: GetAllUsers :many
+Select * from users;
+
+-- name: GetUserByUsername :one
+Select * from users where username = $1;
+
+-- name: GetUserByEmail :one
+Select * from users where email = $1;
+
+-- name: GetUserByUsernameAndVerifyPassword :one
+Select * from users u where u.username = $1 and u.email_verified = $2;
+
+-- name: GetUserCredentialByUserId :one
+Select * from user_credentials u where u.user_id = $1;

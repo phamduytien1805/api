@@ -4,23 +4,32 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"log/slog"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	data_access "github.com/phamduytien1805/internal/data-access"
 	"github.com/phamduytien1805/pkg/common"
+	"github.com/phamduytien1805/pkg/config"
 	"github.com/phamduytien1805/pkg/hash_generator"
 	"github.com/phamduytien1805/pkg/id_generator"
+	"github.com/phamduytien1805/pkg/token"
 )
 
 type UserServiceImpl struct {
-	store   data_access.Store
-	hashGen *hash_generator.Argon2idHash
+	store      data_access.Store
+	hashGen    *hash_generator.Argon2idHash
+	logger     *slog.Logger
+	tokenMaker token.Maker
+	config     *config.Config
 }
 
-func NewUserServiceImpl(store data_access.Store, hashGen *hash_generator.Argon2idHash) UserService {
+func NewUserServiceImpl(store data_access.Store, tokenMaker token.Maker, config *config.Config, logger *slog.Logger, hashGen *hash_generator.Argon2idHash) UserService {
 	return &UserServiceImpl{
-		store:   store,
-		hashGen: hashGen,
+		store:      store,
+		logger:     logger,
+		hashGen:    hashGen,
+		tokenMaker: tokenMaker,
+		config:     config,
 	}
 }
 
@@ -64,20 +73,28 @@ func (svc *UserServiceImpl) CreateUserWithCredential(ctx context.Context, user *
 	return mapToUser(txResult.User), nil
 }
 
-func (svc *UserServiceImpl) AuthenticateUserBasic(ctx context.Context, user *BasicAuthForm) (*User, error) {
-	// userData, err := svc.store.GetUserByEmail(ctx, user.Email)
-	// if err != nil {
-	// 	return nil, err
-	// }
+func (svc *UserServiceImpl) AuthenticateUserBasic(ctx context.Context, userForm *BasicAuthForm) (*User, error) {
+	user, err := svc.store.GetUserByEmail(ctx, userForm.Email)
+	if err != nil {
+		svc.logger.Error("error getting user by email", err)
+		return nil, ErrorUserInvalidAuthenticate
+	}
+	userCredential, err := svc.store.GetUserCredentialByUserId(ctx, user.ID)
+	if err != nil {
+		svc.logger.Error("error getting user credential", err)
+		return nil, ErrorUserInvalidAuthenticate
+	}
 
-	// hashSaltCredential := hash_generator.HashSalt{
-	// 	Hash: []byte(userData.HashedCredential),
-	// 	Salt: []byte(userData.Salt),
-	// }
-
-	// if !svc.hashGen.CompareHash([]byte(user.Credential), hashSaltCredential) {
-	// 	return nil, ErrorUserInvalidCredential
-	// }
+	if err = svc.hashGen.Compare([]byte(userCredential.Credential), []byte(userCredential.Salt), []byte(userForm.Credential)); err != nil {
+		return nil, ErrorUserInvalidAuthenticate
+	}
+	accessToken, accessPayload, err := svc.tokenMaker.CreateToken(
+		user.Username,
+		svc.config.Token.AccessTokenDuration,
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }

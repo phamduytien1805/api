@@ -1,14 +1,17 @@
 package config
 
 import (
+	"time"
+
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Env  string      `mapstructure:"env"`
-	Web  *WebConfig  `mapstructure:"web"`
-	DB   *DBConfig   `mapstructure:"db"`
-	Hash *HashConfig `mapstructure:"hash"`
+	Env   string       `mapstructure:"env"`
+	Web   *WebConfig   `mapstructure:"web"`
+	DB    *DBConfig    `mapstructure:"db"`
+	Hash  *HashConfig  `mapstructure:"hash"`
+	Token *TokenConfig `mapstructure:"token"`
 }
 
 type WebConfig struct {
@@ -35,15 +38,24 @@ type HashConfig struct {
 	SaltLen uint32
 }
 
+type TokenConfig struct {
+	AccessTokenDuration time.Duration
+	SecretKey           string
+}
+
 func setDefault() {
 	viper.SetDefault("web.http.server.port", 5001)
 	viper.SetDefault("env", "development")
 	viper.SetDefault("db.source", "postgresql://root:secret@localhost:5432/coreapi?sslmode=disable")
+
 	viper.SetDefault("hash.time", 1)
 	viper.SetDefault("hash.memory", 64*1024)
 	viper.SetDefault("hash.threads", 32)
 	viper.SetDefault("hash.keyLen", 256)
 	viper.SetDefault("hash.saltLen", 10)
+
+	viper.SetDefault("token.accessTokenDuration", "15m")
+	viper.SetDefault("token.secretKey", "secret")
 
 }
 

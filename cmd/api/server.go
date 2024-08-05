@@ -16,6 +16,7 @@ import (
 	"github.com/phamduytien1805/pkg/config"
 	"github.com/phamduytien1805/pkg/db"
 	"github.com/phamduytien1805/pkg/hash_generator"
+	"github.com/phamduytien1805/pkg/token"
 	v "github.com/phamduytien1805/pkg/validator"
 )
 
@@ -43,7 +44,9 @@ func initializeApplication() (*application, error) {
 	store := data_access.NewStore(db)
 	hashGen := hash_generator.NewArgon2idHash(configConfig)
 
-	userSvc := user.NewUserServiceImpl(store, hashGen)
+	tokenMaker, err := token.NewJWTMaker(configConfig.Token.SecretKey)
+
+	userSvc := user.NewUserServiceImpl(store, tokenMaker, configConfig, logger, hashGen)
 	app := &application{
 		config:    configConfig,
 		logger:    logger,

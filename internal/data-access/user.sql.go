@@ -116,3 +116,127 @@ func (q *Queries) CreateUserSocial(ctx context.Context, arg CreateUserSocialPara
 	)
 	return i, err
 }
+
+const getAllUsers = `-- name: GetAllUsers :many
+Select id, username, email, email_verified, created_at, state, stated_at from users
+`
+
+func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, getAllUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.Email,
+			&i.EmailVerified,
+			&i.CreatedAt,
+			&i.State,
+			&i.StatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserByEmail = `-- name: GetUserByEmail :one
+Select id, username, email, email_verified, created_at, state, stated_at from users where email = $1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.EmailVerified,
+		&i.CreatedAt,
+		&i.State,
+		&i.StatedAt,
+	)
+	return i, err
+}
+
+const getUserById = `-- name: GetUserById :one
+Select id, username, email, email_verified, created_at, state, stated_at from users where id = $1
+`
+
+func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserById, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.EmailVerified,
+		&i.CreatedAt,
+		&i.State,
+		&i.StatedAt,
+	)
+	return i, err
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+Select id, username, email, email_verified, created_at, state, stated_at from users where username = $1
+`
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.EmailVerified,
+		&i.CreatedAt,
+		&i.State,
+		&i.StatedAt,
+	)
+	return i, err
+}
+
+const getUserByUsernameAndVerifyPassword = `-- name: GetUserByUsernameAndVerifyPassword :one
+Select id, username, email, email_verified, created_at, state, stated_at from users u where u.username = $1 and u.email_verified = $2
+`
+
+type GetUserByUsernameAndVerifyPasswordParams struct {
+	Username      string `json:"username"`
+	EmailVerified bool   `json:"email_verified"`
+}
+
+func (q *Queries) GetUserByUsernameAndVerifyPassword(ctx context.Context, arg GetUserByUsernameAndVerifyPasswordParams) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByUsernameAndVerifyPassword, arg.Username, arg.EmailVerified)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.EmailVerified,
+		&i.CreatedAt,
+		&i.State,
+		&i.StatedAt,
+	)
+	return i, err
+}
+
+const getUserCredentialByUserId = `-- name: GetUserCredentialByUserId :one
+Select user_id, credential, salt from user_credentials u where u.user_id = $1
+`
+
+func (q *Queries) GetUserCredentialByUserId(ctx context.Context, userID uuid.UUID) (UserCredential, error) {
+	row := q.db.QueryRow(ctx, getUserCredentialByUserId, userID)
+	var i UserCredential
+	err := row.Scan(&i.UserID, &i.Credential, &i.Salt)
+	return i, err
+}

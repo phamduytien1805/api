@@ -3,5 +3,6 @@ package user
 import "errors"
 
 var (
-	ErrorUserResourceConflict = errors.New("username or email are used")
+	ErrorUserResourceConflict    = errors.New("username or email are used")
+	ErrorUserInvalidAuthenticate = errors.New("username or email are incorrect")
 )

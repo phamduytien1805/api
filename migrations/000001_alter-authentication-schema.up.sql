@@ -11,7 +11,7 @@ CREATE TABLE "users" (
 CREATE TABLE "user_credentials" (
   "user_id" uuid NOT NULL,
   "credential" varchar NOT NULL,
-  "salt" varchar NOT NULL,
+  "salt" varchar NOT NULL
 );
 
 CREATE TABLE "user_social_tokens" (
