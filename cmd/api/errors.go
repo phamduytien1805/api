@@ -79,3 +79,14 @@ func (app *application) editConflictResponse(w http.ResponseWriter, r *http.Requ
 	}
 	app.errorResponseDefault(w, r, http.StatusConflict, message)
 }
+
+func (app *application) invalidAuthenticateResponse(w http.ResponseWriter, r *http.Request, err error) {
+	message := "Fail to authenticate user"
+
+	app.logError(r, err)
+
+	if err != nil {
+		message = err.Error()
+	}
+	app.errorResponseDefault(w, r, http.StatusUnauthorized, message)
+}

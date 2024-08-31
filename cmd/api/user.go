@@ -45,6 +45,17 @@ func (app *application) authenticateUserBasic(w http.ResponseWriter, r *http.Req
 		app.failedValidationResponse(w, r, err)
 		return
 	}
-	app.Ok(w, r, http.StatusCreated, nil)
+
+	userSession, err := app.userSvc.AuthenticateUserBasic(r.Context(), basicAuthForm)
+	if err != nil {
+		if errors.Is(err, user_pkg.ErrorUserInvalidAuthenticate) {
+			app.invalidAuthenticateResponse(w, r, err)
+			return
+		}
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.Ok(w, r, http.StatusCreated, userSession)
 
 }

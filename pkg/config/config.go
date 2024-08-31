@@ -39,8 +39,9 @@ type HashConfig struct {
 }
 
 type TokenConfig struct {
-	AccessTokenDuration time.Duration
-	SecretKey           string
+	AccessTokenDuration  time.Duration
+	RefreshTokenDuration time.Duration
+	SecretKey            string
 }
 
 func setDefault() {
@@ -55,7 +56,8 @@ func setDefault() {
 	viper.SetDefault("hash.saltLen", 10)
 
 	viper.SetDefault("token.accessTokenDuration", "15m")
-	viper.SetDefault("token.secretKey", "secret")
+	viper.SetDefault("token.refreshTokenDuration", "48h")
+	viper.SetDefault("token.secretKey", "secret_secret_secret_secret_secret_secret_secret_secret")
 
 }
 

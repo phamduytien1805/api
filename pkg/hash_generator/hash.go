@@ -3,6 +3,7 @@ package hash_generator
 import (
 	"bytes"
 	"crypto/rand"
+	"encoding/base64"
 	"errors"
 
 	"github.com/phamduytien1805/pkg/config"
@@ -13,7 +14,7 @@ import (
 // generated hash and salt used to
 // generate the hash.
 type HashSalt struct {
-	Hash, Salt []byte
+	Hash, Salt string
 }
 
 type Argon2idHash struct {
@@ -68,19 +69,28 @@ func (a *Argon2idHash) GenerateHash(password, salt []byte) (*HashSalt, error) {
 	// Generate hash
 	hash := argon2.IDKey(password, salt, a.time, a.memory, a.threads, a.keyLen)
 	// Return the generated hash and salt used for storage.
-	return &HashSalt{Hash: hash, Salt: salt}, nil
+	return &HashSalt{Hash: base64.StdEncoding.EncodeToString(hash), Salt: base64.StdEncoding.EncodeToString(salt)}, nil
 }
 
 // Compare generated hash with store hash.
-func (a *Argon2idHash) Compare(hash, salt, password []byte) error {
+func (a *Argon2idHash) Compare(hash, salt, password string) error {
+	// Decode the hash and salt from base64.
+	rawHash, err := base64.StdEncoding.DecodeString(hash)
+	if err != nil {
+		return err
+	}
+	rawSalt, err := base64.StdEncoding.DecodeString(salt)
+	if err != nil {
+		return err
+	}
 	// Generate hash for comparison.
-	hashSalt, err := a.GenerateHash(password, salt)
+	hashSalt, err := a.GenerateHash([]byte(password), rawSalt)
 	if err != nil {
 		return err
 	}
 	// Compare the generated hash with the stored hash.
 	// If they don't match return error.
-	if !bytes.Equal(hash, hashSalt.Hash) {
+	if !bytes.Equal(rawHash, []byte(hashSalt.Hash)) {
 		return errors.New("hash doesn't match")
 	}
 	return nil

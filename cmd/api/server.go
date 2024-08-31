@@ -45,6 +45,9 @@ func initializeApplication() (*application, error) {
 	hashGen := hash_generator.NewArgon2idHash(configConfig)
 
 	tokenMaker, err := token.NewJWTMaker(configConfig.Token.SecretKey)
+	if err != nil {
+		return nil, err
+	}
 
 	userSvc := user.NewUserServiceImpl(store, tokenMaker, configConfig, logger, hashGen)
 	app := &application{

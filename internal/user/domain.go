@@ -1,22 +1,28 @@
 package user
 
 import (
+	"time"
+
 	"github.com/google/uuid"
-	data_access "github.com/phamduytien1805/internal/data-access"
 )
 
 type User struct {
-	ID            uuid.UUID
-	Username      string
-	Email         string
-	EmailVerified bool
+	ID            uuid.UUID `json:"id"`
+	Username      string    `json:"username"`
+	Email         string    `json:"email"`
+	EmailVerified bool      `json:"email_verified"`
+	State         int16     `json:"state"`
 }
 
-func mapToUser(u data_access.User) *User {
-	return &User{
-		ID:            u.ID,
-		Username:      u.Username,
-		Email:         u.Email,
-		EmailVerified: u.EmailVerified,
-	}
+type UserCredential struct {
+	HashedPassword string
+	Salt           string
+}
+
+type UserSession struct {
+	AccessToken           string    `json:"access_token"`
+	AccessTokenExpiresAt  time.Time `json:"access_token_expires_at"`
+	RefreshToken          string    `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time `json:"refresh_token_expires_at"`
+	User                  User      `json:"user"`
 }

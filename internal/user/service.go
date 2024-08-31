@@ -2,13 +2,9 @@ package user
 
 import (
 	"context"
-	"encoding/hex"
-	"errors"
 	"log/slog"
 
-	"github.com/jackc/pgx/v5/pgconn"
 	data_access "github.com/phamduytien1805/internal/data-access"
-	"github.com/phamduytien1805/pkg/common"
 	"github.com/phamduytien1805/pkg/config"
 	"github.com/phamduytien1805/pkg/hash_generator"
 	"github.com/phamduytien1805/pkg/id_generator"
@@ -16,7 +12,7 @@ import (
 )
 
 type UserServiceImpl struct {
-	store      data_access.Store
+	gateway    UserGateWay
 	hashGen    *hash_generator.Argon2idHash
 	logger     *slog.Logger
 	tokenMaker token.Maker
@@ -25,7 +21,7 @@ type UserServiceImpl struct {
 
 func NewUserServiceImpl(store data_access.Store, tokenMaker token.Maker, config *config.Config, logger *slog.Logger, hashGen *hash_generator.Argon2idHash) UserService {
 	return &UserServiceImpl{
-		store:      store,
+		gateway:    &UserGatewayImpl{store: store},
 		logger:     logger,
 		hashGen:    hashGen,
 		tokenMaker: tokenMaker,
@@ -41,53 +37,43 @@ func (svc *UserServiceImpl) CreateUserWithCredential(ctx context.Context, user *
 
 	hashSaltCredential, err := svc.hashGen.GenerateHash([]byte(user.Credential), nil)
 
-	arg := data_access.CreateUserWithCredentialTxParams{
-		CreateUserParams: data_access.CreateUserParams{
-			ID:            ID,
-			Username:      user.Username,
-			Email:         user.Email,
-			EmailVerified: false,
-			State:         1,
-		},
-		HashedCredential: hex.EncodeToString(hashSaltCredential.Hash),
-		Salt:             hex.EncodeToString(hashSaltCredential.Salt),
-		AfterCreate: func(createdUser data_access.User) error {
-			//TODO: add logic to send email verification
-			return nil
-		},
-	}
-	txResult, err := svc.store.CreateUserWithCredentialTx(ctx, arg)
+	createdUser, err := svc.gateway.CreateUserWithCredential(ctx, &User{
+		ID:            ID,
+		Username:      user.Username,
+		Email:         user.Email,
+		EmailVerified: false,
+		State:         1,
+	}, &UserCredential{
+		HashedPassword: hashSaltCredential.Hash,
+		Salt:           hashSaltCredential.Salt,
+	}, func(createdUser *User) error {
+		//TODO: add logic to send email verification
+		return nil
+	})
 
 	if err != nil {
-		var pgErr *pgconn.PgError
-
-		if errors.As(err, &pgErr) {
-			if pgErr.Code == common.UNIQUE_CONSTRAINT_VIOLATION {
-				return nil, ErrorUserResourceConflict
-			}
-
-		}
 		return nil, err
 	}
 
-	return mapToUser(txResult.User), nil
+	return createdUser, nil
 }
 
-func (svc *UserServiceImpl) AuthenticateUserBasic(ctx context.Context, userForm *BasicAuthForm) (*User, error) {
-	user, err := svc.store.GetUserByEmail(ctx, userForm.Email)
+func (svc *UserServiceImpl) AuthenticateUserBasic(ctx context.Context, userForm *BasicAuthForm) (*UserSession, error) {
+	user, err := svc.gateway.GetUserByEmail(ctx, userForm.Email)
 	if err != nil {
 		svc.logger.Error("error getting user by email", err)
 		return nil, ErrorUserInvalidAuthenticate
 	}
-	userCredential, err := svc.store.GetUserCredentialByUserId(ctx, user.ID)
+	userCredential, err := svc.gateway.GetUserCredentialByUserId(ctx, user.ID)
 	if err != nil {
 		svc.logger.Error("error getting user credential", err)
 		return nil, ErrorUserInvalidAuthenticate
 	}
 
-	if err = svc.hashGen.Compare([]byte(userCredential.Credential), []byte(userCredential.Salt), []byte(userForm.Credential)); err != nil {
+	if err = svc.hashGen.Compare(userCredential.HashedPassword, userCredential.Salt, userForm.Credential); err != nil {
 		return nil, ErrorUserInvalidAuthenticate
 	}
+
 	accessToken, accessPayload, err := svc.tokenMaker.CreateToken(
 		user.Username,
 		svc.config.Token.AccessTokenDuration,
@@ -96,5 +82,19 @@ func (svc *UserServiceImpl) AuthenticateUserBasic(ctx context.Context, userForm 
 		return nil, err
 	}
 
-	return nil, nil
+	refreshToken, refreshPayload, err := svc.tokenMaker.CreateToken(
+		user.Username,
+		svc.config.Token.RefreshTokenDuration,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserSession{
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
+		User:                  *user,
+	}, nil
 }
