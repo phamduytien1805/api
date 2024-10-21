@@ -25,6 +25,7 @@ type application struct {
 	config    *config.Config
 	logger    *slog.Logger
 	validator *v.Validate
+	ws        WSConn
 	userSvc   user.UserService
 }
 
@@ -35,6 +36,8 @@ func initializeApplication() (*application, error) {
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	validator := v.New()
+
+	ws := WebSocketBuilder(configConfig)
 
 	db, err := db.NewPostgresql(configConfig)
 
@@ -50,7 +53,9 @@ func initializeApplication() (*application, error) {
 	}
 
 	userSvc := user.NewUserServiceImpl(store, tokenMaker, configConfig, logger, hashGen)
+
 	app := &application{
+		ws:        ws,
 		config:    configConfig,
 		logger:    logger,
 		validator: validator,
