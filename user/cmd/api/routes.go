@@ -24,9 +24,5 @@ func (app *application) routes() http.Handler {
 
 	})
 
-	r.Route("/chat", func(r chi.Router) {
-		r.Get("/ws", app.wsHandler)
-	})
-
 	return r
 }
