@@ -4,11 +4,11 @@ import (
 	"context"
 	"log/slog"
 
-	data_access "github.com/phamduytien1805/internal/data-access"
-	"github.com/phamduytien1805/pkg/config"
-	"github.com/phamduytien1805/pkg/hash_generator"
-	"github.com/phamduytien1805/pkg/id_generator"
-	"github.com/phamduytien1805/pkg/token"
+	data_access "github.com/phamduytien1805/usermodule/internal/data-access"
+	"github.com/phamduytien1805/usermodule/pkg/config"
+	"github.com/phamduytien1805/usermodule/pkg/hash_generator"
+	"github.com/phamduytien1805/usermodule/pkg/id_generator"
+	"github.com/phamduytien1805/usermodule/pkg/token"
 )
 
 type UserServiceImpl struct {

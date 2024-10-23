@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/phamduytien1805/cmd"
+	"github.com/phamduytien1805/usermodule/cmd"
 	"github.com/spf13/cobra"
 )
 

@@ -1,7 +1,7 @@
 package user
 
 import (
-	data_access "github.com/phamduytien1805/internal/data-access"
+	data_access "github.com/phamduytien1805/usermodule/internal/data-access"
 )
 
 func mapToUser(u data_access.User) *User {

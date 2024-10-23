@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/phamduytien1805/cmd"
+	"github.com/phamduytien1805/usermodule/cmd"
 
-	_ "github.com/phamduytien1805/cmd/api"
+	_ "github.com/phamduytien1805/usermodule/cmd/api"
 )
 
 func main() {

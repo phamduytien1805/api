@@ -11,13 +11,13 @@ import (
 	"syscall"
 	"time"
 
-	data_access "github.com/phamduytien1805/internal/data-access"
-	"github.com/phamduytien1805/internal/user"
-	"github.com/phamduytien1805/pkg/config"
-	"github.com/phamduytien1805/pkg/db"
-	"github.com/phamduytien1805/pkg/hash_generator"
-	"github.com/phamduytien1805/pkg/token"
-	v "github.com/phamduytien1805/pkg/validator"
+	data_access "github.com/phamduytien1805/usermodule/internal/data-access"
+	"github.com/phamduytien1805/usermodule/internal/user"
+	"github.com/phamduytien1805/usermodule/pkg/config"
+	"github.com/phamduytien1805/usermodule/pkg/db"
+	"github.com/phamduytien1805/usermodule/pkg/hash_generator"
+	"github.com/phamduytien1805/usermodule/pkg/token"
+	v "github.com/phamduytien1805/usermodule/pkg/validator"
 )
 
 type application struct {

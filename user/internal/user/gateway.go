@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
-	data_access "github.com/phamduytien1805/internal/data-access"
-	"github.com/phamduytien1805/pkg/common"
+	data_access "github.com/phamduytien1805/usermodule/internal/data-access"
+	"github.com/phamduytien1805/usermodule/pkg/common"
 )
 
 type UserGatewayImpl struct {

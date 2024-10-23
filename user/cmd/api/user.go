@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/phamduytien1805/internal/user"
-	user_pkg "github.com/phamduytien1805/internal/user"
+	"github.com/phamduytien1805/usermodule/internal/user"
+	user_pkg "github.com/phamduytien1805/usermodule/internal/user"
 )
 
 func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
