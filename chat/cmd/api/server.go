@@ -12,50 +12,19 @@ import (
 	"time"
 
 	"github.com/phamduytien1805/pkgmodule/config"
-	"github.com/phamduytien1805/pkgmodule/db"
-	"github.com/phamduytien1805/pkgmodule/hash_generator"
-	"github.com/phamduytien1805/pkgmodule/token"
-	"github.com/phamduytien1805/pkgmodule/validator"
-	data_access "github.com/phamduytien1805/usermodule/internal/data-access"
-	"github.com/phamduytien1805/usermodule/internal/user"
 )
 
 type application struct {
-	srv       *http.Server
-	config    *config.Config
-	logger    *slog.Logger
-	validator *validator.Validate
-	userSvc   user.UserService
+	srv    *http.Server
+	logger *slog.Logger
+	config *config.Config
 }
 
 func initializeApplication() (*application, error) {
-	configConfig, err := config.NewConfig()
-	if err != nil {
-		return nil, err
-	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	validator := validator.New()
-
-	db, err := db.NewPostgresql(configConfig)
-
-	if err != nil {
-		return nil, err
-	}
-	store := data_access.NewStore(db)
-	hashGen := hash_generator.NewArgon2idHash(configConfig)
-
-	tokenMaker, err := token.NewJWTMaker(configConfig.Token.SecretKey)
-	if err != nil {
-		return nil, err
-	}
-
-	userSvc := user.NewUserServiceImpl(store, tokenMaker, configConfig, logger, hashGen)
 
 	app := &application{
-		config:    configConfig,
-		logger:    logger,
-		validator: validator,
-		userSvc:   userSvc,
+		logger: logger,
 	}
 	return app, nil
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/phamduytien1805/usermodule/pkg/config"
+	"github.com/phamduytien1805/pkgmodule/config"
 )
 
 const (

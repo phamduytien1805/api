@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 
-	"github.com/phamduytien1805/usermodule/pkg/config"
+	"github.com/phamduytien1805/pkgmodule/config"
 	"golang.org/x/crypto/argon2"
 )
 
