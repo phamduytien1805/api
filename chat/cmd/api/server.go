@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/phamduytien1805/chatmodule/internal/chat"
 	"github.com/phamduytien1805/pkgmodule/config"
 )
 
@@ -18,13 +19,23 @@ type application struct {
 	srv    *http.Server
 	logger *slog.Logger
 	config *config.Config
+	hub    *chat.Hub
 }
 
 func initializeApplication() (*application, error) {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
+	configConfig, err := config.NewConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	hub := chat.NewHub()
+
 	app := &application{
 		logger: logger,
+		config: configConfig,
+		hub:    hub,
 	}
 	return app, nil
 }
@@ -55,6 +66,8 @@ func (app *application) serve() error {
 		err := app.gracefulStop(ctx)
 		shutdownError <- err
 	}()
+
+	go app.hub.Run()
 
 	app.logger.Info("starting server", "addr", app.srv.Addr, "env", app.config.Env)
 
