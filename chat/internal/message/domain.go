@@ -1,4 +1,4 @@
-package chat
+package message
 
 type Message struct {
 	From      string `json:"from"`

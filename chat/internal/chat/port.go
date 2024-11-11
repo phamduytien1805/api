@@ -1,5 +1,6 @@
 package chat
 
 type ConnGateway interface {
-	ReadConn() (interface{}, error)
+	ReadConn() ([]byte, error)
+	HandleError(error)
 }

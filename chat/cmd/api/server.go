@@ -30,7 +30,7 @@ func initializeApplication() (*application, error) {
 		return nil, err
 	}
 
-	hub := chat.NewHub()
+	hub := chat.NewHub(logger)
 
 	app := &application{
 		logger: logger,

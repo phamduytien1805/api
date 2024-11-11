@@ -18,5 +18,9 @@ func (app *application) routes() http.Handler {
 	r.NotFound(app.notFoundResponse)
 	r.MethodNotAllowed(app.methodNotAllowedResponse)
 
+	r.Route("/ws", func(r chi.Router) {
+		r.Get("/v1", app.wsHandler)
+	})
+
 	return r
 }

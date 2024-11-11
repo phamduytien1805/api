@@ -8,6 +8,7 @@ type Session struct {
 	ID     uuid.UUID
 	UserID string
 	Conn   ConnGateway
+	Hub    *Hub
 }
 
 func (s *Session) ReadPump() error {
@@ -16,11 +17,7 @@ func (s *Session) ReadPump() error {
 		if err != nil {
 			return err
 		}
-		switch data.Type {
-		case Msg:
-		default:
-			return ErrorInvalidMessageType
-		}
+		s.Hub.onMessage(s, data)
 	}
 }
 

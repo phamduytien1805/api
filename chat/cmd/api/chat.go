@@ -2,12 +2,11 @@ package api
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/coder/websocket"
-	"github.com/coder/websocket/wsjson"
 	"github.com/phamduytien1805/chatmodule/internal/chat"
-	"github.com/phamduytien1805/pkgmodule/id_generator"
 )
 
 func (app *application) wsHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,31 +20,9 @@ func (app *application) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := NewConn(conn)
 
-	sessionId, err := id_generator.NewUUID()
-	if err != nil {
-		app.logError(r, err)
-		conn.Close(websocket.StatusInternalError, "Cannot create session")
-		return
-	}
+	app.hub.OnJoinHub(c)
 
-	session := &chat.Session{
-		ID:     sessionId,
-		Conn:   c,
-		UserID: "demo",
-	}
-
-	app.hub.OnConnect(session)
-
-	go session.WritePump()
-	err = session.ReadPump()
-	if err != nil {
-		app.logError(r, err)
-		conn.Close(websocket.StatusInternalError, "Cannot read message from session")
-		return
-	}
-
-	conn.Close(websocket.StatusNormalClosure, "")
-
+	conn.Close(websocket.StatusNormalClosure, "connection closed")
 }
 
 type Conn struct {
@@ -58,11 +35,31 @@ func NewConn(conn *websocket.Conn) Conn {
 	}
 }
 
-func (c Conn) ReadConn() (interface{}, error) {
-	var v interface{}
-	err := wsjson.Read(context.Background(), c.conn, &v)
+func (c Conn) ReadConn() ([]byte, error) {
+	msgType, data, err := c.conn.Read(context.Background())
 	if err != nil {
-		return v, err
+		return nil, err
 	}
-	return v, nil
+	switch msgType {
+	case websocket.MessageText:
+		return data, nil
+	case websocket.MessageBinary:
+		// Ignore binary message
+		return nil, nil
+	}
+	return nil, nil
+}
+
+func (c Conn) HandleError(err error) {
+	if err != nil {
+		c.conn.Close(websocket.StatusNormalClosure, "connection closed")
+	}
+	switch {
+	case errors.Is(err, chat.ErrorHandleMessage) || errors.Is(err, chat.ErrorInvalidMessageType):
+		c.conn.Close(websocket.StatusInvalidFramePayloadData, "invalid message")
+	case errors.Is(err, chat.ErrorInitializeSession):
+		c.conn.Close(websocket.StatusUnsupportedData, "fail to create session")
+	default:
+		c.conn.Close(websocket.StatusInternalError, "internal error")
+	}
 }
