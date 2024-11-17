@@ -51,15 +51,12 @@ func (c Conn) ReadConn() ([]byte, error) {
 }
 
 func (c Conn) HandleError(err error) {
-	if err != nil {
-		c.conn.Close(websocket.StatusNormalClosure, "connection closed")
-	}
 	switch {
 	case errors.Is(err, chat.ErrorHandleMessage) || errors.Is(err, chat.ErrorInvalidMessageType):
-		c.conn.Close(websocket.StatusInvalidFramePayloadData, "invalid message")
+		c.conn.Close(websocket.StatusInvalidFramePayloadData, err.Error())
 	case errors.Is(err, chat.ErrorInitializeSession):
-		c.conn.Close(websocket.StatusUnsupportedData, "fail to create session")
+		c.conn.Close(websocket.StatusUnsupportedData, err.Error())
 	default:
-		c.conn.Close(websocket.StatusInternalError, "internal error")
+		c.conn.Close(websocket.StatusInternalError, err.Error())
 	}
 }

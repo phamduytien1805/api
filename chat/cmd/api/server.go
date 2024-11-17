@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/phamduytien1805/chatmodule/internal/chat"
+	"github.com/phamduytien1805/chatmodule/internal/message"
+	"github.com/phamduytien1805/chatmodule/pubsub"
 	"github.com/phamduytien1805/pkgmodule/config"
 )
 
@@ -30,7 +32,14 @@ func initializeApplication() (*application, error) {
 		return nil, err
 	}
 
-	hub := chat.NewHub(logger)
+	kafkaClient, err := pubsub.NewPublisher(configConfig, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	msgSvc := message.NewMessageService(logger, kafkaClient)
+
+	hub := chat.NewHub(logger, msgSvc)
 
 	app := &application{
 		logger: logger,
@@ -44,7 +53,7 @@ func (app *application) serve() error {
 	// Start the server
 
 	app.srv = &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.config.Web.Http.Server.Port),
+		Addr:         fmt.Sprintf(":%d", app.config.Web.Http.WS.Port),
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,

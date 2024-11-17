@@ -1,11 +1,11 @@
 package chat
 
 import (
-	"github.com/google/uuid"
+	"github.com/phamduytien1805/pkgmodule/id_generator"
 )
 
 type Session struct {
-	ID     uuid.UUID
+	ID     id_generator.UUID
 	UserID string
 	Conn   ConnGateway
 	Hub    *Hub

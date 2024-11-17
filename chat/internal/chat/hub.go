@@ -15,11 +15,12 @@ type Hub struct {
 	msgSvc   message.MessageService
 }
 
-func NewHub(logger *slog.Logger) *Hub {
+func NewHub(logger *slog.Logger, msgSvc message.MessageService) *Hub {
 	return &Hub{
 		logger:   logger,
 		sessions: make(map[*Session]bool),
 		rooms:    make(map[string]*Room),
+		msgSvc:   msgSvc,
 	}
 }
 
@@ -33,7 +34,7 @@ func (h *Hub) OnJoinHub(conn ConnGateway) {
 	sessionId, err := id_generator.NewUUID()
 	if err != nil {
 		h.logger.Error("Cannot create sessionId", "detailed", err)
-		conn.HandleError(err)
+		conn.HandleError(ErrorInitializeSession)
 		return
 	}
 	session := &Session{
@@ -43,9 +44,15 @@ func (h *Hub) OnJoinHub(conn ConnGateway) {
 		Hub:    h,
 	}
 
+	h.logger.Info("New session", "sessionId", sessionId)
+
 	go session.WritePump()
 	err = session.ReadPump()
-	conn.HandleError(err)
+	if err != nil {
+		h.logger.Error("Cannot run read pump", "detailed", err)
+		conn.HandleError(ErrorInitializeReader)
+		return
+	}
 }
 
 func (h *Hub) onConnect(session *Session) {
@@ -55,12 +62,17 @@ func (h *Hub) onConnect(session *Session) {
 func (h *Hub) onMessage(session *Session, data []byte) {
 	eventMessage, err := mapRawToBaseEvent(data)
 	if err != nil {
-		session.Conn.HandleError(err)
+		h.logger.Error("Cannot map raw data to event message", "detailed", err)
+		session.Conn.HandleError(ErrorInvalidMessage)
 		return
 	}
 	switch {
 	case eventMessage.Text != nil:
-		h.msgSvc.BroadcastMessage(context.Background(), eventMessage.Text)
+		if err := h.msgSvc.BroadcastTextMessage(context.Background(), *eventMessage.Text); err != nil {
+			h.logger.Error("Cannot broadcast text message", "detailed", err)
+			session.Conn.HandleError(ErrorHandleBroadcastTextMessage)
+			return
+		}
 	default:
 	}
 }

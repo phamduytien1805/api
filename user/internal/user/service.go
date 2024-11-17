@@ -8,7 +8,7 @@ import (
 	"github.com/phamduytien1805/pkgmodule/hash_generator"
 	"github.com/phamduytien1805/pkgmodule/id_generator"
 	"github.com/phamduytien1805/pkgmodule/token"
-	data_access "github.com/phamduytien1805/usermodule/internal/data-access"
+	data_access "github.com/phamduytien1805/usermodule/data-access"
 )
 
 type UserServiceImpl struct {

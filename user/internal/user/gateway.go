@@ -7,8 +7,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/phamduytien1805/pkgmodule/common"
-	data_access "github.com/phamduytien1805/usermodule/internal/data-access"
+	data_access "github.com/phamduytien1805/usermodule/data-access"
 )
+
+type UserGateWay interface {
+	CreateUserWithCredential(ctx context.Context, userParams *User, userCredential *UserCredential, afterCreateFn func(*User) error) (*User, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	GetUserCredentialByUserId(ctx context.Context, userID uuid.UUID) (*UserCredential, error)
+}
 
 type UserGatewayImpl struct {
 	store data_access.Store

@@ -12,11 +12,15 @@ type Config struct {
 	DB    *DBConfig    `mapstructure:"db"`
 	Hash  *HashConfig  `mapstructure:"hash"`
 	Token *TokenConfig `mapstructure:"token"`
+	Kafka *KafkaConfig `mapstructure:"kafka"`
 }
 
 type WebConfig struct {
 	Http struct {
 		Server struct {
+			Port int
+		}
+		WS struct {
 			Port int
 		}
 	}
@@ -44,8 +48,13 @@ type TokenConfig struct {
 	SecretKey            string
 }
 
+type KafkaConfig struct {
+	Brokers []string
+}
+
 func setDefault() {
 	viper.SetDefault("web.http.server.port", 5001)
+	viper.SetDefault("web.http.ws.port", 5002)
 	viper.SetDefault("env", "development")
 	viper.SetDefault("db.source", "postgresql://root:secret@localhost:5432/coreapi?sslmode=disable")
 
@@ -58,6 +67,8 @@ func setDefault() {
 	viper.SetDefault("token.accessTokenDuration", "15m")
 	viper.SetDefault("token.refreshTokenDuration", "48h")
 	viper.SetDefault("token.secretKey", "secret_secret_secret_secret_secret_secret_secret_secret")
+
+	viper.SetDefault("kafka.brokers", []string{"localhost:9092"})
 
 }
 

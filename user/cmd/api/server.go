@@ -16,7 +16,7 @@ import (
 	"github.com/phamduytien1805/pkgmodule/hash_generator"
 	"github.com/phamduytien1805/pkgmodule/token"
 	"github.com/phamduytien1805/pkgmodule/validator"
-	data_access "github.com/phamduytien1805/usermodule/internal/data-access"
+	data_access "github.com/phamduytien1805/usermodule/data-access"
 	"github.com/phamduytien1805/usermodule/internal/user"
 )
 
