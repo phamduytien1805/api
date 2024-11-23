@@ -1,6 +1,7 @@
 package pubsub
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/phamduytien1805/pkgmodule/config"
@@ -23,5 +24,10 @@ func NewPublisher(config *config.Config, logger *slog.Logger) (*Publisher, error
 }
 
 func (p *Publisher) PublishMessage(data []byte) error {
-	return nil
+	p.logger.Info("Publishing message", "data", string(data))
+	err := p.c.ProduceSync(context.Background(), &kgo.Record{
+		Topic: "test",
+		Value: data,
+	})
+	return err.FirstErr()
 }

@@ -1,6 +1,7 @@
 package message
 
 type BaseEvent struct {
+	ID   string          `json:"id"`
 	Text *MessagePayload `json:"text,omitempty"`
 	Join *JoinPayload    `json:"join,omitempty"`
 }

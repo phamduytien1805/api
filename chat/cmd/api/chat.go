@@ -6,7 +6,9 @@ import (
 	"net/http"
 
 	"github.com/coder/websocket"
+	"github.com/coder/websocket/wsjson"
 	"github.com/phamduytien1805/chatmodule/internal/chat"
+	"github.com/phamduytien1805/chatmodule/internal/message"
 )
 
 func (app *application) wsHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,19 +37,17 @@ func NewConn(conn *websocket.Conn) Conn {
 	}
 }
 
-func (c Conn) ReadConn() ([]byte, error) {
-	msgType, data, err := c.conn.Read(context.Background())
+func (c Conn) ReadConn() (message.BaseEvent, error) {
+	var v message.BaseEvent
+	err := wsjson.Read(context.Background(), c.conn, &v)
 	if err != nil {
-		return nil, err
+		return v, err
 	}
-	switch msgType {
-	case websocket.MessageText:
-		return data, nil
-	case websocket.MessageBinary:
-		// Ignore binary message
-		return nil, nil
-	}
-	return nil, nil
+	return v, nil
+}
+
+func (c Conn) WriteConn(data interface{}) error {
+	return wsjson.Write(context.Background(), c.conn, data)
 }
 
 func (c Conn) HandleError(err error) {

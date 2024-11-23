@@ -2,7 +2,10 @@ module github.com/phamduytien1805/chatmodule
 
 go 1.22.5
 
-require github.com/spf13/viper v1.19.0
+require (
+	github.com/spf13/viper v1.19.0
+	github.com/twmb/franz-go v1.18.0
+)
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
@@ -10,7 +13,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
-	github.com/twmb/franz-go v1.18.0 // indirect
 	github.com/twmb/franz-go/pkg/kmsg v1.9.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )

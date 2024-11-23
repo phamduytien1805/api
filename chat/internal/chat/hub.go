@@ -59,20 +59,16 @@ func (h *Hub) onConnect(session *Session) {
 	h.sessions[session] = true
 }
 
-func (h *Hub) onMessage(session *Session, data []byte) {
-	eventMessage, err := mapRawToBaseEvent(data)
-	if err != nil {
-		h.logger.Error("Cannot map raw data to event message", "detailed", err)
-		session.Conn.HandleError(ErrorInvalidMessage)
-		return
-	}
+func (h *Hub) onMessage(session *Session, eventMessage message.BaseEvent) {
+	h.logger.Info("Received message", "eventId", eventMessage.ID)
 	switch {
 	case eventMessage.Text != nil:
 		if err := h.msgSvc.BroadcastTextMessage(context.Background(), *eventMessage.Text); err != nil {
-			h.logger.Error("Cannot broadcast text message", "detailed", err)
-			session.Conn.HandleError(ErrorHandleBroadcastTextMessage)
+			session.Conn.HandleError(ErrorInitializeReader)
+
 			return
 		}
+		session.Ok(eventMessage.ID)
 	default:
 	}
 }
