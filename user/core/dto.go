@@ -1,4 +1,4 @@
-package user
+package core
 
 type CreateUserForm struct {
 	Username   string `json:"username" validate:"required,min=5,max=32"`

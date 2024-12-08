@@ -18,10 +18,10 @@ type Config struct {
 type WebConfig struct {
 	Http struct {
 		Server struct {
-			Port int
+			Port string
 		}
 		WS struct {
-			Port int
+			Port string
 		}
 	}
 }

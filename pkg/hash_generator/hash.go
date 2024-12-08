@@ -5,8 +5,8 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"phamduytien1805/pkg/config"
 
-	"github.com/phamduytien1805/pkgmodule/config"
 	"golang.org/x/crypto/argon2"
 )
 

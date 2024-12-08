@@ -1,15 +1,19 @@
-package user
+package core
 
 import (
 	"context"
 	"log/slog"
-
-	"github.com/phamduytien1805/pkgmodule/config"
-	"github.com/phamduytien1805/pkgmodule/hash_generator"
-	"github.com/phamduytien1805/pkgmodule/id_generator"
-	"github.com/phamduytien1805/pkgmodule/token"
-	data_access "github.com/phamduytien1805/usermodule/data-access"
+	"phamduytien1805/pkg/config"
+	"phamduytien1805/pkg/hash_generator"
+	"phamduytien1805/pkg/id_generator"
+	"phamduytien1805/pkg/token"
+	"phamduytien1805/user/data_access"
 )
+
+type UserService interface {
+	CreateUserWithCredential(ctx context.Context, user *CreateUserForm) (*User, error)
+	AuthenticateUserBasic(ctx context.Context, user *BasicAuthForm) (*UserSession, error)
+}
 
 type UserServiceImpl struct {
 	gateway    UserGateWay

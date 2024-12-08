@@ -1,13 +1,13 @@
-package user
+package core
 
 import (
 	"context"
 	"errors"
+	"phamduytien1805/pkg/common"
+	"phamduytien1805/user/data_access"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/phamduytien1805/pkgmodule/common"
-	data_access "github.com/phamduytien1805/usermodule/data-access"
 )
 
 type UserGateWay interface {
@@ -69,4 +69,21 @@ func (gw *UserGatewayImpl) GetUserCredentialByUserId(ctx context.Context, userID
 		return nil, err
 	}
 	return mapToUserCredential(uc), nil
+}
+
+func mapToUser(u data_access.User) *User {
+	return &User{
+		ID:            u.ID,
+		Username:      u.Username,
+		Email:         u.Email,
+		EmailVerified: u.EmailVerified,
+		State:         u.State,
+	}
+}
+
+func mapToUserCredential(uc data_access.UserCredential) *UserCredential {
+	return &UserCredential{
+		HashedPassword: uc.Credential,
+		Salt:           uc.Salt,
+	}
 }

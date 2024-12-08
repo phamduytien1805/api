@@ -2,10 +2,10 @@ package db
 
 import (
 	"context"
+	"phamduytien1805/pkg/config"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/phamduytien1805/pkgmodule/config"
 )
 
 const (

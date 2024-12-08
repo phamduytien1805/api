@@ -24,7 +24,7 @@ func New() *Validate {
 }
 
 // ValidatorErrors func for show validation errors for each invalid fields.
-func (v *Validate) ValidatorErrors(err error) map[string]string {
+func ValidatorErrors(err error) map[string]string {
 	// Define variable for error fields.
 	errFields := map[string]string{}
 

@@ -1,4 +1,4 @@
-package api
+package http_helpers
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 
 type envelope map[string]any
 
-func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
+func writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	js, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -26,9 +26,9 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	return nil
 }
 
-func (app *application) Ok(w http.ResponseWriter, r *http.Request, status int, payload any) {
-	err := app.writeJSON(w, status, envelope{"data": payload, "success": true}, nil)
+func Ok(w http.ResponseWriter, r *http.Request, status int, payload any) {
+	err := writeJSON(w, status, envelope{"data": payload, "success": true}, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		ServerErrorResponse(w, r, err)
 	}
 }
